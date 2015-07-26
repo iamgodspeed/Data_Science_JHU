@@ -4,7 +4,7 @@ practical machine learning project write up
 
 
 ### 1.packages
-```{r,results="hide"}
+```{r,results='hide'}
 library(caret)
 library(dplyr)
 library(randomForest)
@@ -64,7 +64,7 @@ train_control <- trainControl(method="cv", number=3)
 model <- train(classe~.,data=set_training, method="rf",trControl=train_control)
 ```
 
-### 7.prediction on training set and testing set
+### 7.prediction on training set(in sample) and testing set(out of sample)
 ```{r}
 # error rate in sample
 prediction <- predict(model, set_training, type="raw")
@@ -82,6 +82,9 @@ print(paste("error rate out of sample : ",1-error_rate_outsample[["overall"]][["
 
 error_rate_outsample
 ```
+
+##### 0.9982 accuracy is pretty good. 95% confidence between 0.9963 ~ 0.9993.
+
 
 ### 8.prediction on test data
 ```{r}
