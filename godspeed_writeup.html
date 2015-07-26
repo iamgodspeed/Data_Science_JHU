@@ -162,8 +162,8 @@ set_testing &lt;- data_train[-inTrain,]</code></pre>
 <pre class="r"><code>train_control &lt;- trainControl(method=&quot;cv&quot;, number=3)
 model &lt;- train(classe~.,data=set_training, method=&quot;rf&quot;,trControl=train_control)</code></pre>
 </div>
-<div id="prediction-on-training-set-and-testing-set" class="section level3">
-<h3>7.prediction on training set and testing set</h3>
+<div id="prediction-on-training-setin-sample-and-testing-setout-of-sample" class="section level3">
+<h3>7.prediction on training set(in sample) and testing set(out of sample)</h3>
 <pre class="r"><code># error rate in sample
 prediction &lt;- predict(model, set_training, type=&quot;raw&quot;)
 error_rate_insample&lt;-confusionMatrix(prediction, set_training$classe)
@@ -240,10 +240,16 @@ print(paste(&quot;error rate out of sample : &quot;,1-error_rate_outsample[[&quo
 ## Detection Rate         0.2845   0.1927   0.1744   0.1631   0.1838
 ## Detection Prevalence   0.2850   0.1927   0.1754   0.1631   0.1838
 ## Balanced Accuracy      0.9996   0.9980   0.9994   0.9977   1.0000</code></pre>
+<div id="accuracy-is-pretty-good.-95-confidence-between-0.9963-0.9993." class="section level5">
+<h5>0.9982 accuracy is pretty good. 95% confidence between 0.9963 ~ 0.9993.</h5>
+</div>
 </div>
 <div id="prediction-on-test-data" class="section level3">
 <h3>8.prediction on test data</h3>
-<pre class="r"><code>prediction_test &lt;- predict(model, data_test, type = &quot;raw&quot;)</code></pre>
+<pre class="r"><code>prediction_test &lt;- predict(model, data_test, type = &quot;raw&quot;)
+prediction_test</code></pre>
+<pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
+## Levels: A B C D E</code></pre>
 </div>
 <div id="submission" class="section level3">
 <h3>9.submission</h3>
