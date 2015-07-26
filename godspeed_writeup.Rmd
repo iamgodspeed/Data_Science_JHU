@@ -1,0 +1,106 @@
+practical machine learning project write up
+===========================================
+##### author : godspeed
+
+
+### 1.packages
+```{r,results="hide"}
+library(caret)
+library(dplyr)
+library(randomForest)
+```
+
+### 2.getting data
+##### information is available from the website : 
+##### http://groupware.les.inf.puc-rio.br/har
+##### training data :
+##### https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv
+##### test data :
+##### https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv
+
+```{r}
+setwd("~/Desktop")
+# data contains "DIV/O!"" and "NA", read them as NA
+data_train<-read.csv("pml-training.csv",header=T,na.strings=c("NA","#DIV/0!",""))
+data_test<-read.csv("pml-testing.csv",header=T,na.string=c("NA","#DIV/0!",""))
+```
+
+### 3.objective
+##### predict the manner in which they did the exercise. This is the "classe" variable in the training set. Use any of the other variables to predict with.
+```{r}
+table(data_train$classe)
+```
+
+### 4.cleaning data
+##### remove the variables : 
+##### 1.does not make sense(column 1 to 5)
+##### 2.near zero vriance
+##### 3.columns that contains a lot NAs(90%)
+```{r}
+# remove first five column
+data_train <- data_train[, -(1:5)]
+# remove nearly zero
+index_nsv <- nearZeroVar(data_train)
+data_train <- data_train[, -index_nsv]
+# remove columns contains a lot NA, keep low NA frequency column
+index_NA_90percent <- sapply(data_train, function(x) mean(is.na(x))) > 0.9
+data_train <- data_train[, index_NA_90percent==F]
+```
+
+
+### 5.split train data into training set (80%) and testing set (20%). 
+
+```{r}
+set.seed(1)
+inTrain <- createDataPartition(data_train$classe, p = 0.8, list = FALSE)
+set_training <- data_train[inTrain,]
+set_testing <- data_train[-inTrain,]
+```
+
+
+### 6.model training with 3 cross validation
+```{r}
+train_control <- trainControl(method="cv", number=3)
+model <- train(classe~.,data=set_training, method="rf",trControl=train_control)
+```
+
+### 7.prediction on training set and testing set
+```{r}
+# error rate in sample
+prediction <- predict(model, set_training, type="raw")
+error_rate_insample<-confusionMatrix(prediction, set_training$classe)
+
+print(paste("error rate in sample : ",1-error_rate_insample[["overall"]][["Accuracy"]]))
+
+error_rate_insample
+
+# error rate out of sample
+prediction <- predict(model, set_testing, type="raw")
+error_rate_outsample<-confusionMatrix(prediction, set_testing$classe)
+
+print(paste("error rate out of sample : ",1-error_rate_outsample[["overall"]][["Accuracy"]]))
+
+error_rate_outsample
+```
+
+### 8.prediction on test data
+```{r}
+prediction_test <- predict(model, data_test, type = "raw")
+prediction_test
+```
+
+### 9.submission
+```{r}
+answers <- prediction_test
+
+pml_write_files = function(x){
+  n = length(x)
+  for(i in 1:n){
+    filename = paste0("problem_id_",i,".txt")
+    write.table(x[i],file=filename,quote=FALSE,row.names=FALSE,col.names=FALSE)
+  }
+}
+
+pml_write_files(answers)
+
+```
